@@ -71,19 +71,19 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts:
-    - family: Cairo
-      fonts:
-        - asset: Fonts/Cairo-Black.ttf
-        - asset: Fonts/Cairo-Bold.ttf
-        - asset: Fonts/Cairo-ExtraLight.ttf
-        - asset: Fonts/Cairo-Light.ttf
-        - asset: Fonts/Cairo-Regular.ttf
-        - asset: Fonts/Cairo-SemiBold.ttf
+#   fonts:
+#     - family: Cairo
+#       fonts:
+#         - asset: Fonts/Cairo-Black.ttf
+#         - asset: Fonts/Cairo-Bold.ttf
+#         - asset: Fonts/Cairo-ExtraLight.ttf
+#         - asset: Fonts/Cairo-Light.ttf
+#         - asset: Fonts/Cairo-Regular.ttf
+#         - asset: Fonts/Cairo-SemiBold.ttf
 
-    - family: ElMessiri
-      fonts:
-        - asset: Fonts/ElMessiri-Regular.ttf
+#     - family: ElMessiri
+#       fonts:
+#         - asset: Fonts/ElMessiri-Regular.ttf
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
