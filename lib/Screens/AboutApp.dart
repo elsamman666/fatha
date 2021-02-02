@@ -72,7 +72,9 @@ class _AboutAppState extends State<AboutApp> {
                                 child: lang=="ar"?Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Text(tr("contact"),style: TextStyle(color: Colors.white,fontSize: 20,fontFamily: "ElMessiri"),),
+                                    Text(tr("contact"),style: GoogleFonts.elMessiri(
+                                        textStyle: TextStyle(fontSize: 20,color: Colors.white)
+                                    )),
                                     SizedBox(width: 7,),
                                     Image.asset("images/mail.png")
                                   ],
@@ -81,7 +83,9 @@ class _AboutAppState extends State<AboutApp> {
                                   children: [
                                     Image.asset("images/mail.png"),
                                     SizedBox(width: 7,),
-                                    Text(tr("contact"),style: TextStyle(color: Colors.white,fontSize: 20,fontFamily: "ElMessiri"),),
+                                    Text(tr("contact"),style: GoogleFonts.elMessiri(
+                                        textStyle: TextStyle(fontSize: 20,color: Colors.white)
+                                    )),
                                   ],
                                 ),
                               ),
@@ -130,7 +134,9 @@ class _AboutAppState extends State<AboutApp> {
                                   children: [
                                     Image.asset("images/star.png"),
                                     SizedBox(width: 7,),
-                                    Text(tr("rate"),style: TextStyle(color: Colors.white,fontSize: 20,fontFamily: "ElMessiri"),),
+                                    Text(tr("rate"),style: GoogleFonts.elMessiri(
+                                        textStyle: TextStyle(fontSize: 20,color: Colors.white)
+                                    )),
                                   ],
                                 ),
                               ),
