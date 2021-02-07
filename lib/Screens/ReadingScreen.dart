@@ -126,7 +126,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
     _mplaybackReady = true;
     print(_mPath);
     print(outputFile.path);
-    play(outputFile.path);
+//     play(outputFile.path);
     PostRecordAudio(outputFile);
   }
 
@@ -543,6 +543,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
   // }
 
   Future<void> PostRecordAudio(File imageFile) async{
+    print("kkkkkkkkkkk");
     print(imageFile.path);
     Dio dio = Dio();
     FormData formData;
