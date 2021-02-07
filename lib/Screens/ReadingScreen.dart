@@ -124,6 +124,8 @@ class _ReadingScreenState extends State<ReadingScreen> {
     print("fffffffffffffffffff");
     await _mRecorder.stopRecorder();
     _mplaybackReady = true;
+    print(_mPath);
+    print(outputFile.path);
     play(outputFile.path);
     PostRecordAudio(outputFile);
   }
