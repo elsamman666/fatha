@@ -99,12 +99,17 @@ class _ReadingScreenState extends State<ReadingScreen> {
       throw RecordingPermissionException('Microphone permission not granted');
     }
 
-    var tempDir = await getApplicationDocumentsDirectory();
+    var status2 = await Permission.storage.request();
+    if (status2 != PermissionStatus.granted) {
+      throw RecordingPermissionException('Storage permission not granted');
+    }
+    Directory tempDir = await getTemporaryDirectory();
     _mPath = '${tempDir.path}/flutter_sound_example.aac';
-    outputFile = File(_mPath);
-    if (outputFile.existsSync()) {
+    if (File(_mPath).existsSync()) {
       await outputFile.delete();
     }
+    outputFile = File(_mPath);
+    
     await _mRecorder.openAudioSession();
     _mRecorderIsInited = true;
   }
