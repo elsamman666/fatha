@@ -97,7 +97,7 @@ class _ReadingNewMuslimScreenState extends State<ReadingNewMuslimScreen> {
         _mPlayer.isStopped);
     await _mPlayer.startPlayer(
         fromURI: file,
-        // codec: Codec.pcm16WAV,
+        codec: Codec.pcm16WAV,
         whenFinished: () {
           setState(() {});
         });
@@ -118,7 +118,7 @@ class _ReadingNewMuslimScreenState extends State<ReadingNewMuslimScreen> {
     }
 
     var tempDir = await getApplicationDocumentsDirectory();
-    _mPath = '${tempDir.path}/flutter_sound_example.aac';
+    _mPath = '${tempDir.path}/flutter_sound_example.wav';
     outputFile = File(_mPath);
     if (outputFile.existsSync()) {
       await outputFile.delete();
