@@ -81,7 +81,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
         _mPlayer.isStopped);
     await _mPlayer.startPlayer(
         fromURI: file,
-        // codec: Codec.pcm16WAV,
+        codec: Codec.pcm16WAV,
         whenFinished: () {
           setState(() {});
         });
@@ -104,7 +104,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
       throw RecordingPermissionException('Storage permission not granted');
     }
     Directory tempDir = await getTemporaryDirectory();
-    _mPath = '${tempDir.path}/flutter_sound_example.aac';
+    _mPath = '${tempDir.path}/flutter_sound_example.wav';
     if (File(_mPath).existsSync()) {
       await outputFile.delete();
     }
