@@ -75,20 +75,28 @@ class _ReadingScreenState extends State<ReadingScreen> {
   }
 
   void play(file) async {
-    assert(_mPlayerIsInited &&
-        _mplaybackReady &&
-        _mRecorder.isStopped &&
-        _mPlayer.isStopped);
-    await _mPlayer.startPlayer(
-        fromURI: file,
-        codec: Codec.pcm16WAV,
-        whenFinished: () {
-          setState(() {});
-        });
-
+    // assert(_mPlayerIsInited &&
+    //     _mplaybackReady &&
+    //     _mRecorder.isStopped &&
+    //     _mPlayer.isStopped);
+    try {
+      await _mPlayer.startPlayer(
+          fromURI: file,
+          codec: Codec.pcm16WAV,
+          whenFinished: () {
+            setState(() {});
+          });
+    }catch(e){
+      Fluttertoast.showToast(
+          msg: tr("problem"),
+          gravity: ToastGravity.CENTER,
+          toastLength: Toast.LENGTH_SHORT,
+          timeInSecForIosWeb: 2
+      );
+    }
     setState(() {});
   }
-
+  
   Future<void> stopPlayer() async {
     await _mPlayer.stopPlayer();
   }
@@ -188,6 +196,11 @@ class _ReadingScreenState extends State<ReadingScreen> {
                       ],
                     ),
                   ),
+                  InkWell(
+                    onTap: (){
+                        play(_mPath);
+                    },
+                      child: Icon(Icons.play_circle_outline,size: 35,),),
                   Expanded(
                     flex: 3,
                     child: Container(
