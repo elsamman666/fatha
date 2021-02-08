@@ -123,6 +123,7 @@ class _ReadingNewMuslimScreenState extends State<ReadingNewMuslimScreen> {
     if (outputFile.existsSync()) {
       await outputFile.delete();
     }
+    outputFile.openWrite();
     await _mRecorder.openAudioSession();
     _mRecorderIsInited = true;
   }
