@@ -109,7 +109,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
       await outputFile.delete();
     }
     outputFile = File(_mPath);
-    
+    outputFile.openWrite();
     await _mRecorder.openAudioSession();
     _mRecorderIsInited = true;
   }
