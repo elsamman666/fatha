@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: SvgPicture.asset("images/LOGO.svg",height: 200,width: 200,),
+        child: SvgPicture.asset("images/LOGO.svg",height: 200,width: 200,fit: BoxFit.fill),
       ),
     );
   }
