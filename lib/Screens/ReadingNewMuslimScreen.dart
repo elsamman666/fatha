@@ -121,7 +121,7 @@ class _ReadingNewMuslimScreenState extends State<ReadingNewMuslimScreen> {
     _mPath = '${tempDir.path}/flutter_sound_example.wav';
     outputFile = File(_mPath);
     if (outputFile.existsSync()) {
-      await outputFile.delete();
+      await File(_mPath).delete();
     }
     outputFile.openWrite();
     await _mRecorder.openAudioSession();
