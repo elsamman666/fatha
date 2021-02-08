@@ -25,7 +25,7 @@ class _ChooseLanguageState extends State<ChooseLanguage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset("images/LOGO.svg",),
+            SvgPicture.asset("images/LOGO.svg",height: 200,width: 200,fit: BoxFit.fill),
             SizedBox(height: 15,),
             Text("اختر اللغة",style: TextStyle(color: Colors.grey,fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
             Text("choose language",style: TextStyle(color: Colors.grey,fontSize: 20,fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
