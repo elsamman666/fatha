@@ -114,7 +114,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
     Directory tempDir = await getTemporaryDirectory();
     _mPath = '${tempDir.path}/flutter_sound_example.wav';
     if (File(_mPath).existsSync()) {
-      await outputFile.delete();
+      await File(_mPath).delete();
     }
     outputFile = File(_mPath);
     outputFile.openWrite();
