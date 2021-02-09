@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:file/local.dart';
 import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,6 +19,9 @@ import 'ListningScreen.dart';
 class ReadingScreen extends StatefulWidget {
   String dept,aya,verse;
   int index,deptId;
+  LocalFileSystem localFileSystem = LocalFileSystem();
+
+
 
   ReadingScreen(this.dept,this.deptId,this.index,this.aya,this.verse);
   // final LocalFileSystem localFileSystem=LocalFileSystem();
@@ -27,6 +33,9 @@ class ReadingScreen extends StatefulWidget {
 
 class _ReadingScreenState extends State<ReadingScreen> {
   // Recording _recording = new Recording();
+  FlutterAudioRecorder _recorder;
+  Recording _current;
+  RecordingStatus _currentStatus = RecordingStatus.Unset;
   bool _isRecording = false;
   Random random = new Random();
   List<bool> matches = [];
@@ -36,7 +45,6 @@ class _ReadingScreenState extends State<ReadingScreen> {
   List<String> ayaWords = [];
   int wordIndex=0;
   FlutterSoundPlayer _mPlayer = FlutterSoundPlayer();
-  FlutterSoundRecorder _mRecorder = FlutterSoundRecorder();
   bool _mPlayerIsInited = false;
   bool _mRecorderIsInited = false;
   bool _mplaybackReady = false;
@@ -56,21 +64,22 @@ class _ReadingScreenState extends State<ReadingScreen> {
       verseWords=widget.verse.split(" ");
       ayaWords=widget.aya.split(" ");
     });
-    _mRecorder.openAudioSession().then((value) {
-      setState(() {
-        _mPlayerIsInited = true;
-      });
-    });
-    openTheRecorder().then((value) {
-      setState(() {
-        _mRecorderIsInited = true;
-      });
-    });
+    // _mRecorder.openAudioSession().then((value) {
+    //   setState(() {
+    //     _mPlayerIsInited = true;
+    //   });
+    // });
+    // openTheRecorder().then((value) {
+    //   setState(() {
+    //     _mRecorderIsInited = true;
+    //   });
+    // });
     _mPlayer.openAudioSession().then((value) {
       setState(() {
         _mPlayerIsInited = true;
       });
     });
+    _init();
     super.initState();
   }
 
@@ -81,8 +90,8 @@ class _ReadingScreenState extends State<ReadingScreen> {
     //     _mPlayer.isStopped);
     try {
       await _mPlayer.startPlayer(
-          fromURI: file,
-//           codec: Codec.pcm16WAV,
+          fromURI: _current.path,
+          // codec: Codec.aacADTS,
           whenFinished: () {
             setState(() {});
           });
@@ -96,52 +105,52 @@ class _ReadingScreenState extends State<ReadingScreen> {
     }
     setState(() {});
   }
-  
-  Future<void> stopPlayer() async {
-    await _mPlayer.stopPlayer();
-  }
 
-  Future<void> openTheRecorder() async {
-    var status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted) {
-      throw RecordingPermissionException('Microphone permission not granted');
-    }
+  // Future<void> stopPlayer() async {
+  //   await _mPlayer.stopPlayer();
+  // }
 
-    var status2 = await Permission.storage.request();
-    if (status2 != PermissionStatus.granted) {
-      throw RecordingPermissionException('Storage permission not granted');
-    }
-    Directory tempDir = await getTemporaryDirectory();
-    _mPath = '${tempDir.path}/flutter_sound_example.wav';
-    if (File(_mPath).existsSync()) {
-      await File(_mPath).delete();
-    }
-    outputFile = File(_mPath);
-    outputFile.openWrite();
-    await _mRecorder.openAudioSession();
-    _mRecorderIsInited = true;
-  }
+  // Future<void> openTheRecorder() async {
+  //   var status = await Permission.microphone.request();
+  //   if (status != PermissionStatus.granted) {
+  //     throw RecordingPermissionException('Microphone permission not granted');
+  //   }
+  //   var status2 = await Permission.storage.request();
+  //   if (status2 != PermissionStatus.granted) {
+  //     throw RecordingPermissionException('Storage permission not granted');
+  //   }
+  //   Directory tempDir = await getTemporaryDirectory();
+  //   _mPath = '${tempDir.path}/flutter_sound_example.wav';
+  //   if (File(_mPath).existsSync()) {
+  //     await File(_mPath).delete();
+  //   }
+  //   outputFile = File(_mPath);
+  //   outputFile.openWrite();
+  //   await _mRecorder.openAudioSession();
+  //   _mRecorderIsInited = true;
+  // }
 
 
-  Future<void> record() async {
-    print("gggggggggggggggggggggg");
-    assert(_mRecorderIsInited);
-    await _mRecorder.startRecorder(
-      toFile: _mPath,
-      codec: Codec.pcm16WAV,
-    );
-    setState(() {});
-  }
-
-  Future<void> stopRecorder(outputFile) async {
-    print("fffffffffffffffffff");
-    await _mRecorder.stopRecorder();
-    _mplaybackReady = true;
-    print(_mPath);
-    print(outputFile.path);
-    play(outputFile.path);
-    PostRecordAudio(outputFile);
-  }
+  // Future<void> record() async {
+  //   print("gggggggggggggggggggggg");
+  //   assert(_mRecorderIsInited);
+  //   await _mRecorder.startRecorder(
+  //     toFile: _mPath,
+  //     codec: Codec.pcm16WAV,
+  //   );
+  //
+  //   setState(() {});
+  // }
+  //
+  // Future<void> stopRecorder(outputFile) async {
+  //   print("fffffffffffffffffff");
+  //   await _mRecorder.stopRecorder();
+  //   _mplaybackReady = true;
+  //   print(_mPath);
+  //   print(outputFile.path);
+  //   // play(outputFile.path);
+  //   PostRecordAudio(outputFile);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +265,33 @@ class _ReadingScreenState extends State<ReadingScreen> {
                           ),
                           Expanded(
                             flex: 1,
-                            child:InkWell(
+                            child:GestureDetector(
+                              onLongPressEnd: (v){
+                                // stopRecorder(outputFile);
+                                setState(() {
+                                  _isRecording = false;
+                                  proccesing = true;
+                                  _stop();
+                                });
+                              },
+                              onLongPress: ()async{
+                                if(!proccesing) {
+                                  if (_isRecording) {
+                                    // stopRecorder(outputFile);
+                                    _stop();
+                                    setState(() {
+                                      _isRecording = false;
+                                      proccesing = true;
+                                    });
+                                  } else {
+                                    // record();
+                                    _start();
+                                    setState(() {
+                                      _isRecording = true;
+                                    });
+                                  }
+                                }
+                              },
                               onTap: () async {
                                 // await Permission.microphone.request().isGranted;
                                   // if (_isRecording) {
@@ -264,25 +299,12 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                   // } else {
                                   //   _start();
                                   // }
-                                if(!proccesing) {
-                                  if (_isRecording) {
-                                    stopRecorder(outputFile);
-                                    setState(() {
-                                      _isRecording = false;
-                                      proccesing = true;
-                                    });
-                                  } else {
-                                    record();
-                                    setState(() {
-                                      _isRecording = true;
-                                    });
-                                  }
-                                }
+
                               },
                                 child: Image.asset("images/mice.png",height: 110,width: 110,)
                             )
                           ),
-                          _isRecording?Text(tr("recording")):proccesing?Text(tr("processing")):SizedBox(),
+                          _isRecording?Text(tr("recording")):proccesing?Center(child: CircularProgressIndicator(),):SizedBox(),
                         ],
                       ),
                     ),
@@ -524,53 +546,113 @@ class _ReadingScreenState extends State<ReadingScreen> {
       ),
     );
   }
-  // _start() async {
-  //   try {
-  //           var appDocDirectory =
-  //           await getApplicationDocumentsDirectory();
-  //           String path = appDocDirectory.path + '/' + "record${random.nextInt(999999)}";
-  //
-  //         print("Start recording: $path");
-  //         await AudioRecorder.start(
-  //             path: path, audioOutputFormat: AudioOutputFormat.WAV);
-  //
-  //       bool isRecording = await AudioRecorder.isRecording;
-  //       setState(() {
-  //         _recording = new Recording(duration: new Duration(), path: "");
-  //         _isRecording = isRecording;
-  //       });
-  //
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
-  //
-  // _stop() async {
-  //   var recording = await AudioRecorder.stop();
-  //   print("Stop recording: ${recording.path}");
-  //   bool isRecording = await AudioRecorder.isRecording;
-  //   // File file = widget.localFileSystem.file(recording.path);
-  //   File file = File(recording.path);
-  //   await audioPlayer.play(file.path, isLocal: true);
-  //   print("  File length: ${await file.length()}");
-  //   setState(() {
-  //     _recording = recording;
-  //     _isRecording = isRecording;
-  //   });
-  //   PostRecordAudio(file);
-  // }
+  _init() async {
+    try {
+      if (await FlutterAudioRecorder.hasPermissions) {
+        String customPath = '/flutter_audio_recorder_';
+        Directory appDocDirectory;
+//        io.Directory appDocDirectory = await getApplicationDocumentsDirectory();
+        if (Platform.isIOS) {
+          appDocDirectory = await getApplicationDocumentsDirectory();
+        } else {
+          appDocDirectory = await getExternalStorageDirectory();
+        }
 
-  Future<void> PostRecordAudio(File imageFile) async{
-    print("kkkkkkkkkkk");
-    print(imageFile.path);
+        // can add extension like ".mp4" ".wav" ".m4a" ".aac"
+        customPath = appDocDirectory.path +
+            customPath +
+            DateTime.now().millisecondsSinceEpoch.toString();
+
+        // .wav <---> AudioFormat.WAV
+        // .mp4 .m4a .aac <---> AudioFormat.AAC
+        // AudioFormat is optional, if given value, will overwrite path extension when there is conflicts.
+        _recorder =
+            FlutterAudioRecorder(customPath, audioFormat: AudioFormat.WAV);
+
+        await _recorder.initialized;
+        // after initialization
+        var current = await _recorder.current(channel: 0);
+        print(current);
+        // should be "Initialized", if all working fine
+        setState(() {
+          _current = current;
+          _currentStatus = current.status;
+          print(_currentStatus);
+        });
+      } else {
+        // showPermissonPopUp(context);
+        await Permission.microphone.request();
+        Scaffold.of(context).showSnackBar(
+            new SnackBar(content: new Text("You must accept permissions")));
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _start() async {
+    try {
+      await _recorder.start();
+      var recording = await _recorder.current(channel: 0);
+      setState(() {
+        _current = recording;
+      });
+
+      const tick = const Duration(milliseconds: 50);
+      new Timer.periodic(tick, (Timer t) async {
+        if (_currentStatus == RecordingStatus.Stopped) {
+          t.cancel();
+        }
+
+        var current = await _recorder.current(channel: 0);
+        // print(current.status);
+        setState(() {
+          _current = current;
+          _currentStatus = _current.status;
+        });
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+  _stop() async {
+    var result = await _recorder.stop();
+    print("Stop recording: ${result.path}");
+    print("Stop recording: ${result.duration}");
+    File file = widget.localFileSystem.file(result.path);
+    print("File length: ${await file.length()}");
+    setState(() {
+      _current = result;
+      _currentStatus = _current.status;
+    });
+    if (widget.localFileSystem.file(_current.path).lengthSync() > 20000)
+    {
+      PostRecordAudio(_current.path);
+    }
+    else
+    {
+      Fluttertoast.showToast(
+          msg: tr("problem"),
+          gravity: ToastGravity.CENTER,
+          toastLength: Toast.LENGTH_SHORT,
+          timeInSecForIosWeb: 2
+      );
+      setState(() {
+        proccesing=false;
+      });    }
+
+  }
+
+  Future<void> PostRecordAudio(String imageFile) async{
+    print(imageFile);
     Dio dio = Dio();
     FormData formData;
-      String fileName = imageFile.path
+      String fileName = imageFile
           .split('/')
           .last;
       formData = FormData.fromMap({
         "audio":
-        await MultipartFile.fromFile(imageFile.path, filename: fileName),
+        await MultipartFile.fromFile(imageFile, filename: fileName),
         });
 
     var data;
@@ -594,24 +676,23 @@ class _ReadingScreenState extends State<ReadingScreen> {
       if(widget.deptId==1) {
         List<String> dataList = st1.split(" ");
         List<String> ayaList = widget.aya.split(" ");
-        int length;
         List<bool> matches = [];
         List<int> rightCounter = [];
-        if (ayaList.length > dataList.length) {
-          length = dataList.length;
-        } else {
-          length = ayaList.length;
-        }
-        for (int i = 0; i < length; i++) {
+
+        for (int i = 0; i < ayaList.length; i++) {
           // RegExp r = RegExp(ayaList[i]);
           // matches.add(r.hasMatch(st1[i]));
-          if (dataList[i].contains(ayaList[i])) {
-            rightCounter.add(i);
+          if(dataList.length-1>=i) {
+            if (dataList[i].contains(ayaList[i])) {
+              rightCounter.add(i);
+            }
+            matches.add(dataList[i].contains(ayaList[i]));
+          }else{
+            matches.add(false);
           }
-          matches.add(dataList[i].contains(ayaList[i]));
         }
         print(matches);
-        if (rightCounter.length >= length / 2) {
+        if (rightCounter.length >= ayaList.length / 2) {
           setState(() {
             right = "1";
             x=5;
@@ -737,21 +818,4 @@ class _ReadingScreenState extends State<ReadingScreen> {
   //   });
   // }
 
-
-  @override
-  void dispose() {
-    stopPlayer();
-    _mPlayer.closeAudioSession();
-    _mPlayer = null;
-
-    _mRecorder.closeAudioSession();
-    _mRecorder = null;
-    if (_mPath != null) {
-      var outputFile = File(_mPath);
-      if (outputFile.existsSync()) {
-        outputFile.delete();
-      }
-    }
-    super.dispose();
-  }
 }
