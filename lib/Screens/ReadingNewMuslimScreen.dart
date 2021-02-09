@@ -1,60 +1,57 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:file/local.dart';
+import 'dart:math';
 import 'dart:ui';
+import 'package:file/local.dart';
 import 'package:dio/dio.dart';
+import 'package:fatha/Screens/ListningNewMuslimScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
-import 'package:flutter_sound/flutter_sound.dart';
+import 'package:flutter_sound/public/flutter_sound_player.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:flutter_sound/public/tau.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../LeftToRight.dart';
 import 'HomeScreen.dart';
-import 'ListningScreen.dart';
-
-class ReadingScreen extends StatefulWidget {
-  String dept,aya,verse;
-  int index,deptId;
+class ReadingNewMuslimScreen extends StatefulWidget {
+  String dept,aya,verse,translatedverse;
+  int index;
   LocalFileSystem localFileSystem = LocalFileSystem();
 
-
-
-  ReadingScreen(this.dept,this.deptId,this.index,this.aya,this.verse);
-  // final LocalFileSystem localFileSystem=LocalFileSystem();
-
+  ReadingNewMuslimScreen(this.dept,this.index,this.aya,this.verse,this.translatedverse);
 
   @override
-  _ReadingScreenState createState() => _ReadingScreenState();
+  _ReadingNewMuslimScreenState createState() => _ReadingNewMuslimScreenState();
 }
 
-class _ReadingScreenState extends State<ReadingScreen> {
-  // Recording _recording = new Recording();
-  FlutterAudioRecorder _recorder;
-  Recording _current;
-  RecordingStatus _currentStatus = RecordingStatus.Unset;
+class _ReadingNewMuslimScreenState extends State<ReadingNewMuslimScreen> {
   bool _isRecording = false;
   Random random = new Random();
+  List<Widget> wid;
+
+  double x = 0 , y = 0;
   List<bool> matches = [];
   List<int> rightCounter = [];
-  double x = 0 , y = 0;
-  List<String> verseWords = [];
-  List<String> ayaWords = [];
-  int wordIndex=0;
   FlutterSoundPlayer _mPlayer = FlutterSoundPlayer();
+  FlutterSoundRecorder _mRecorder = FlutterSoundRecorder();
   bool _mPlayerIsInited = false;
   bool _mRecorderIsInited = false;
   bool _mplaybackReady = false;
-  String _mPath;
+  FlutterAudioRecorder _recorder;
+  Recording _current;
+  RecordingStatus _currentStatus = RecordingStatus.Unset;
   File outputFile;
-
+  int wordIndex=0;
+  String translatedverse;
+  List<String> verseWords = [];
+  List<String> ayaWords = [];
+  List<String> transVarse=[];
   String right="1";
-
-  bool proccesing = false;
   bool wordRight = true;
+  bool proccesing = false;
 
   @override
   void initState() {
@@ -63,6 +60,22 @@ class _ReadingScreenState extends State<ReadingScreen> {
     setState(() {
       verseWords=widget.verse.split(" ");
       ayaWords=widget.aya.split(" ");
+      if(widget.index==0){
+        translatedverse="In the Name of-Allāh-the Most Gracious-the Most Merciful";
+      }else if(widget.index==1){
+        translatedverse="Praise-be to God-Lord-of the Two Worlds";
+      }else if(widget.index==2){
+        translatedverse="Most Merciful-Most Compassionate";
+      }else if(widget.index==3){
+        translatedverse="King of-the Day-of Jurisprudence";
+      }else if(widget.index==4){
+        translatedverse="Beware of-worship-and Thine-aid we seek";
+      }else if(widget.index==5){
+        translatedverse="Guide us to-the Straight Way-the Straight Way";
+      }else if(widget.index==6){
+        translatedverse="The condition-of those-you have blessed-you have blessed-not against whom He is angry-not against whom He is angry-and not for the lost-";
+      }
+      transVarse=translatedverse.split("-");
     });
     // _mRecorder.openAudioSession().then((value) {
     //   setState(() {
@@ -110,22 +123,20 @@ class _ReadingScreenState extends State<ReadingScreen> {
   //   await _mPlayer.stopPlayer();
   // }
 
+
+  //
   // Future<void> openTheRecorder() async {
   //   var status = await Permission.microphone.request();
   //   if (status != PermissionStatus.granted) {
   //     throw RecordingPermissionException('Microphone permission not granted');
   //   }
-  //   var status2 = await Permission.storage.request();
-  //   if (status2 != PermissionStatus.granted) {
-  //     throw RecordingPermissionException('Storage permission not granted');
-  //   }
-  //   Directory tempDir = await getTemporaryDirectory();
+  //
+  //   var tempDir = await getApplicationDocumentsDirectory();
   //   _mPath = '${tempDir.path}/flutter_sound_example.wav';
-  //   if (File(_mPath).existsSync()) {
-  //     await File(_mPath).delete();
-  //   }
   //   outputFile = File(_mPath);
-  //   outputFile.openWrite();
+  //   if (outputFile.existsSync()) {
+  //     await outputFile.delete();
+  //   }
   //   await _mRecorder.openAudioSession();
   //   _mRecorderIsInited = true;
   // }
@@ -138,7 +149,6 @@ class _ReadingScreenState extends State<ReadingScreen> {
   //     toFile: _mPath,
   //     codec: Codec.pcm16WAV,
   //   );
-  //
   //   setState(() {});
   // }
   //
@@ -146,12 +156,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
   //   print("fffffffffffffffffff");
   //   await _mRecorder.stopRecorder();
   //   _mplaybackReady = true;
-  //   print(_mPath);
-  //   print(outputFile.path);
-  //   // play(outputFile.path);
+  //   play(outputFile.path);
   //   PostRecordAudio(outputFile);
   // }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -207,9 +214,9 @@ class _ReadingScreenState extends State<ReadingScreen> {
                   ),
                   InkWell(
                     onTap: (){
-                        play(_mPath);
+                      play(_current.path);
                     },
-                      child: Icon(Icons.play_circle_outline,size: 35,),),
+                    child: Icon(Icons.play_circle_outline,size: 35,),),
                   Expanded(
                     flex: 3,
                     child: Container(
@@ -229,12 +236,12 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                 width: double.infinity,
                                 padding: EdgeInsets.symmetric(horizontal: 15),
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Container(alignment:Alignment.center,child: Text(widget.deptId==0?verseWords[wordIndex]:widget.verse,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.purple),)),
-                                    ),
+                                    Container(alignment:Alignment.center,child: Text(verseWords[wordIndex],style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.purple),)),
                                     SizedBox(height: 10,),
+                                    Text(transVarse[wordIndex],textAlign: TextAlign.center,style: TextStyle(color: Colors.grey,fontSize: 13),)
                                     // Expanded(
                                     //   flex: 1,
                                     //   child: Container(
@@ -264,45 +271,45 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             ),
                           ),
                           Expanded(
-                            flex: 1,
-                            child:GestureDetector(
-                              onLongPressEnd: (v){
-                                // stopRecorder(outputFile);
-                                setState(() {
-                                  _isRecording = false;
-                                  proccesing = true;
-                                  _stop();
-                                });
-                              },
-                              onLongPress: ()async{
-                                if(!proccesing) {
-                                  if (_isRecording) {
+                              flex: 1,
+                              child:GestureDetector(
+                                  onLongPressEnd: (v){
                                     // stopRecorder(outputFile);
-                                    _stop();
                                     setState(() {
                                       _isRecording = false;
                                       proccesing = true;
+                                      _stop();
                                     });
-                                  } else {
-                                    // record();
-                                    _start();
-                                    setState(() {
-                                      _isRecording = true;
-                                    });
-                                  }
-                                }
-                              },
-                              onTap: () async {
-                                // await Permission.microphone.request().isGranted;
-                                  // if (_isRecording) {
-                                  //   _stop();
-                                  // } else {
-                                  //   _start();
-                                  // }
+                                  },
+                                  onLongPress: ()async{
+                                    if(!proccesing) {
+                                      if (_isRecording) {
+                                        // stopRecorder(outputFile);
+                                        _stop();
+                                        setState(() {
+                                          _isRecording = false;
+                                          proccesing = true;
+                                        });
+                                      } else {
+                                        // record();
+                                        _start();
+                                        setState(() {
+                                          _isRecording = true;
+                                        });
+                                      }
+                                    }
+                                  },
+                                  onTap: () async {
+                                    // await Permission.microphone.request().isGranted;
+                                    // if (_isRecording) {
+                                    //   _stop();
+                                    // } else {
+                                    //   _start();
+                                    // }
 
-                              },
-                                child: Image.asset("images/mice.png",height: 110,width: 110,)
-                            )
+                                  },
+                                  child: Image.asset("images/mice.png",height: 110,width: 110,)
+                              )
                           ),
                           _isRecording?Text(tr("recording")):proccesing?Center(child: CircularProgressIndicator(),):SizedBox(),
                         ],
@@ -326,7 +333,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))
+                      borderRadius: BorderRadius.all(Radius.circular(15))
                   ),
                   elevation: 10,
                   color: Colors.white,
@@ -338,7 +345,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                           textDirection: TextDirection.rtl,
                           textAlign: TextAlign.center,style: GoogleFonts.elMessiri(textStyle:TextStyle(fontSize: 34,color: Color(0xff707070),fontWeight: FontWeight.bold),)),
                         SizedBox(height: 25,),
-                        Text(tr("rightReading"),textAlign: TextAlign.center,style: GoogleFonts.elMessiri(textStyle:TextStyle(fontSize: 25,color: Color(0xff707070)),)),
+                        Text(tr("rightReading"),textAlign: TextAlign.center,style: GoogleFonts.elMessiri(textStyle:TextStyle(fontSize: 24,color: Color(0xff707070)),)),
                         SizedBox(height: 30,),
                         Container(
                           alignment: Alignment.center,
@@ -349,7 +356,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                 y=0;
                               });
                               Navigator.pop(context);
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ListningScreen(widget.dept,widget.index+1,widget.deptId)));
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ListningNewMuslimScreen(widget.dept,widget.index+1)));
                             },
                             child: Container(
                               height: 55,
@@ -367,7 +374,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                   colors: [Color(0xffAF1FAA),Color(0xff9318D1)],
                                 ),
                               ),
-                              child: Text("الاية التالية",style: GoogleFonts.elMessiri(textStyle:TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 23),)),
+                              child: Text(tr("nextVerse"),style: GoogleFonts.elMessiri(textStyle:TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),)),
                             ),
                           ),
                         ),
@@ -450,13 +457,13 @@ class _ReadingScreenState extends State<ReadingScreen> {
                             },
                             child: Container(
                               height: 55,
-                              margin: EdgeInsets.symmetric(horizontal: 20),
+                              margin: EdgeInsets.symmetric(horizontal: 25),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(34)),
                                 color: Color(0xffFED051),
                               ),
-                              child: Text(tr("backHome"),style: GoogleFonts.elMessiri(textStyle: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),)),
+                              child: Text(tr("backHome"),style: GoogleFonts.elMessiri(textStyle:TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),)),
                             ),
                           ),
                         ),
@@ -496,7 +503,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                               borderRadius: BorderRadius.all(Radius.circular(34)),
                               color: Color(0xffFF5F5F),
                             ),
-                            child: Text(tr("reReading"),style: GoogleFonts.elMessiri(textStyle:TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),)),
+                            child: Text(tr("reReading"),style: GoogleFonts.elMessiri(textStyle:TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 23),)),
                           ),
                         ),
                         SizedBox(height: 10,),
@@ -518,7 +525,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
                                 borderRadius: BorderRadius.all(Radius.circular(34)),
                                 color: Color(0xffFED051),
                               ),
-                              child: Text(tr("nextWord"),style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "ElMessiri",fontSize: 23),),
+                              child: Text(tr("nextWord"),style: GoogleFonts.elMessiri(textStyle:TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),)),
                             ),
                           ),
                         ),
@@ -546,6 +553,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
       ),
     );
   }
+
   _init() async {
     try {
       if (await FlutterAudioRecorder.hasPermissions) {
@@ -639,21 +647,22 @@ class _ReadingScreenState extends State<ReadingScreen> {
       );
       setState(() {
         proccesing=false;
-      });    }
-
+      });
+    }
   }
+
 
   Future<void> PostRecordAudio(String imageFile) async{
     print(imageFile);
     Dio dio = Dio();
     FormData formData;
-      String fileName = imageFile
-          .split('/')
-          .last;
-      formData = FormData.fromMap({
-        "audio":
-        await MultipartFile.fromFile(imageFile, filename: fileName),
-        });
+    String fileName = imageFile
+        .split('/')
+        .last;
+    formData = FormData.fromMap({
+      "audio":
+      await MultipartFile.fromFile(imageFile, filename: fileName),
+    });
 
     var data;
 
@@ -673,32 +682,22 @@ class _ReadingScreenState extends State<ReadingScreen> {
     // _showDialog();
     if(data['data']!=null) {
       String st1 = data['data'];
-      if(widget.deptId==1) {
-        List<String> dataList = st1.split(" ");
-        List<String> ayaList = widget.aya.split(" ");
-        List<bool> matches = [];
-        List<int> rightCounter = [];
 
-        for (int i = 0; i < ayaList.length; i++) {
-          // RegExp r = RegExp(ayaList[i]);
-          // matches.add(r.hasMatch(st1[i]));
-          if(dataList.length-1>=i) {
-            if (dataList[i].contains(ayaList[i])) {
-              rightCounter.add(i);
-            }
-            matches.add(dataList[i].contains(ayaList[i]));
-          }else{
-            matches.add(false);
-          }
+        if(st1.contains(ayaWords[wordIndex])){
+          rightCounter.add(wordIndex);
         }
-        print(matches);
-        if (rightCounter.length >= ayaList.length / 2) {
+
+      print(matches);
+
+
+      if(wordIndex==ayaWords.length-1) {
+        if (rightCounter.length >= ayaWords.length / 2) {
           setState(() {
             right = "1";
             x=5;
             y=5;
           });
-        } else {
+        }else {
           setState(() {
             right = "0";
             x=5;
@@ -707,41 +706,20 @@ class _ReadingScreenState extends State<ReadingScreen> {
         }
       }else{
         if(st1.contains(ayaWords[wordIndex])){
-          rightCounter.add(wordIndex);
-        }
-
-        print(matches);
-        if(wordIndex==ayaWords.length-1) {
-          if (rightCounter.length >= ayaWords.length / 2) {
-            setState(() {
-              right = "1";
-              x=5;
-              y=5;
-            });
-          } else {
-            setState(() {
-              right = "0";
-              x=5;
-              y=5;
-            });
-          }
+          setState(() {
+            wordRight = true;
+            x=0;
+            y=0;
+            matches.add(st1.contains(ayaWords[wordIndex]));
+            wordIndex++;
+          });
         }else{
-          if(st1.contains(ayaWords[wordIndex])){
-            setState(() {
-              wordRight = true;
-              x=0;
-              y=0;
-              matches.add(st1.contains(ayaWords[wordIndex]));
-              wordIndex++;
-            });
-          }else{
-            setState(() {
-              wordRight = false;
-              right="2";
-              x=5;
-              y=5;
-            });
-          }
+          setState(() {
+            wordRight = false;
+            right="2";
+            x=5;
+            y=5;
+          });
         }
       }
     }else{
@@ -759,63 +737,7 @@ class _ReadingScreenState extends State<ReadingScreen> {
     setState(() {
       proccesing = false;
     });
+
     // print("Has Match ? : ${r.hasMatch(st1)}");
   }
-
-  // Future<void> _showDialog(){
-  //   return showDialog(context: context, builder: (BuildContext) {
-  //     return AlertDialog(
-  //       backgroundColor: Color(0xffF5F5F5),
-  //       title: Column(
-  //         children: [
-  //           SizedBox(height: 25,),
-  //           Text("احسنت !",
-  //             textDirection: TextDirection.rtl,
-  //             textAlign: TextAlign.center,style: TextStyle(fontFamily: "ElMessiri",fontSize: 39,color: Color(0xff707070)),),
-  //         ],
-  //       ),
-  //       content: SingleChildScrollView(
-  //         child: ListBody(
-  //           children: <Widget>[
-  //             Text("قراءة صحيحة",textAlign: TextAlign.center,style: TextStyle(fontFamily: "ElMessiri",fontSize: 29,color: Color(0xff707070)),),
-  //         SizedBox(height: 30,),
-  //         Container(
-  //           alignment: Alignment.center,
-  //           child: InkWell(
-  //             onTap: (){
-  //               setState(() {
-  //                 x=0;
-  //                 y=0;
-  //               });
-  //               Navigator.pop(context);
-  //               Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ListningScreen(widget.dept,widget.index+1)));
-  //             },
-  //             child: Container(
-  //               height: 55,
-  //               margin: EdgeInsets.symmetric(horizontal: 20),
-  //               alignment: Alignment.center,
-  //               decoration: BoxDecoration(
-  //                 borderRadius: BorderRadius.all(Radius.circular(34)),
-  //                 gradient: LinearGradient(
-  //                   // stops: [
-  //                   //   0.7,
-  //                   //   0.3,
-  //                   // ],
-  //                   begin: Alignment.centerLeft,
-  //                   end: Alignment.centerRight,
-  //                   colors: [Color(0xffAF1FAA),Color(0xff9318D1)],
-  //                 ),
-  //               ),
-  //               child: Text("الاية التالية",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontFamily: "ElMessiri",fontSize: 23),),
-  //             ),
-  //           ),
-  //           ),
-  //             SizedBox(height: 30,),
-  //           ],
-  //         ),
-  //       ),
-  //     );
-  //   });
-  // }
-
 }
