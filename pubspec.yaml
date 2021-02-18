@@ -25,15 +25,22 @@ dependencies:
     sdk: flutter
   flutter_svg:
   rating_bar:
-  path_provider:
+  path_provider: ^1.6.27
   permission_handler:
   dio:
-  localize_and_translate:
+  sqflite: ^1.3.2+3
+  sqlite_bm25: ^0.2.0
+#  localize_and_translate: ^3.0.3
   shared_preferences:
-  flutter_audio_recorder: ^0.5.5
   fluttertoast:
+  flutter_phoenix:
   flutter_sound:
+  flutter_audio_recorder:
   google_fonts:
+  flutter_deepspeech:
+    git:
+      url: https://melsamman@bitbucket.org/feras_m/flutter_deepspeech.git
+      ref: master
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
